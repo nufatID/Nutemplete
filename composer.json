@@ -1,0 +1,18 @@
+{
+    "name": "nufat/nutemplete",
+    "description": "untuk templete nuphp",
+    "type": "library",
+    "license": "mit",
+    "autoload": {
+        "psr-4": {
+            "Nufat\\Nutemplete\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "nufat.id"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
