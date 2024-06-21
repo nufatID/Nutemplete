@@ -1,9 +1,9 @@
 <?php
 
-namespace Nufat\Template;
+namespace Nufat\Nutemplete;
 
-use Nufat\Template\Block;
-use Nufat\Template\Environment;
+use Nufat\Nutemplete\Block;
+use Nufat\Nutemplete\Render;
 
 class Template implements \ArrayAccess
 {
@@ -21,7 +21,7 @@ class Template implements \ArrayAccess
 		$this->content = new Block();
 	}
 
-	public static function withEnvironment(Environment $environment, $path)
+	public static function withEnvironment(Render $environment, $path)
 	{
 		$obj = ($path === null) ? new self(null) : new self($environment->getTemplatePath($path));
 		$obj->setEnvironment($environment);
@@ -178,7 +178,7 @@ class Template implements \ArrayAccess
 		return (string)$this->content;
 	}
 
-	public function setEnvironment(Environment $environment)
+	public function setEnvironment(Render $environment)
 	{
 		$this->environment = $environment;
 	}
@@ -276,8 +276,9 @@ class Template implements \ArrayAccess
 
 	protected function findComponent($component)
 	{
-		// Define the base directory for components
-		$baseDir = __DIR__ . '/../resource/components';
+		$templateDir = $this->environment->getTemplateDir();
+		// Define the base directory for components relative to the template directory
+		$baseDir = $templateDir . '/../resource/components';
 
 		// Check if the component exists in a subfolder
 		$componentPath = $baseDir . DIRECTORY_SEPARATOR . str_replace('-', DIRECTORY_SEPARATOR, $component) . '.nu.php';

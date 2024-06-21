@@ -1,6 +1,6 @@
 <?php
 
-namespace Nufat\NuTemplete;
+namespace Nufat\Nutemplete;
 
 
 class Render

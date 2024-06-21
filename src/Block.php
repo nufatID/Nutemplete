@@ -1,6 +1,6 @@
 <?php
 
-namespace Nufat\NuTemplete;
+namespace Nufat\Nutemplete;
 
 /**
  * Block class
@@ -130,7 +130,3 @@ class Block
 		$this->escaped = $escaped;
 	}
 }
-
-?>
-
-buat code untuk render
