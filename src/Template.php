@@ -27,11 +27,6 @@ class Template implements \ArrayAccess
 		$obj->setEnvironment($environment);
 		return $obj;
 	}
-	public function modelna($m)
-	{
-		require_once __DIR__ . '/../app/models/' . $m . '.php';
-		return new $m;
-	}
 	public function extend($path)
 	{
 		if ($path === null) {
