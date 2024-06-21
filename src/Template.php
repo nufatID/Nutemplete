@@ -2,9 +2,6 @@
 
 namespace Nufat\Nutemplete;
 
-use Nufat\Nutemplete\Block;
-use Nufat\Nutemplete\Render;
-
 class Template implements \ArrayAccess
 {
 	protected $templatePath;
@@ -13,20 +10,24 @@ class Template implements \ArrayAccess
 	private $stack = array();
 	protected $blocks = array();
 	protected $extends = null;
+	protected $bladeSyntax;
 
 	public function __construct($path = null)
 	{
 		$this->templatePath = $path;
 		$this->environment = null;
 		$this->content = new Block();
+		$this->bladeSyntax = new BladeSyntax($this);
 	}
 
 	public static function withEnvironment(Render $environment, $path)
 	{
 		$obj = ($path === null) ? new self(null) : new self($environment->getTemplatePath($path));
 		$obj->setEnvironment($environment);
+		$obj->bladeSyntax = new BladeSyntax($environment);
 		return $obj;
 	}
+
 	public function extend($path)
 	{
 		if ($path === null) {
@@ -96,15 +97,13 @@ class Template implements \ArrayAccess
 
 	protected function renderComponents($content, $variables)
 	{
-		// Adjust the regex to capture multiple attributes and make data attribute optional
 		$pattern = '/<nu-([\w-]+)([^>]*)>(.*?)<\/nu-\1>/s';
 
 		$content = preg_replace_callback($pattern, function ($matches) use ($variables) {
 			$component = $matches[1];
 			$attributes = $matches[2];
-			$slotContent = $matches[3]; // Get the content between tags
+			$slotContent = $matches[3];
 
-			// Extract all attributes
 			preg_match_all('/([\w-]+)\s*=\s*([\'"])(.*?)\2/', $attributes, $attributeMatches, PREG_SET_ORDER);
 			$data = [];
 			foreach ($attributeMatches as $attr) {
@@ -120,14 +119,10 @@ class Template implements \ArrayAccess
 				}
 			}
 
-			// Check if the component file exists in a subfolder
 			$componentPath = $this->findComponent($component);
 
 			if ($componentPath !== null) {
-				// Merge the component data with the global variables
-				$mergedVariables = array_merge($variables, $data, ['slot' => $slotContent]); // Include the content as a variable
-
-				// Render the component with merged variables
+				$mergedVariables = array_merge($variables, $data, ['slot' => $slotContent]);
 				return $this->Component($component, $mergedVariables);
 			} else {
 				throw new \InvalidArgumentException("Component file could not be found.");
@@ -136,7 +131,6 @@ class Template implements \ArrayAccess
 
 		return $content;
 	}
-
 
 	public function render(array $variables = array())
 	{
@@ -149,18 +143,14 @@ class Template implements \ArrayAccess
 			extract($variables, EXTR_SKIP);
 			$content = file_get_contents($_file);
 
-			// Step 1: Replace Blade syntax with PHP code
-			$content = $this->replaceBladeSyntax($content, $variables);
+			$content = $this->bladeSyntax->replaceBladeSyntax($content, $variables);
 
-			// Step 2: Evaluate the PHP code
 			ob_start();
 			eval('?>' . $content);
 			$evaluatedContent = ob_get_clean();
 
-			// Step 3: Render the components in the evaluated content
 			$evaluatedContent = $this->renderComponents($evaluatedContent, $variables);
 
-			// Append the final content
 			$this->content->append($evaluatedContent);
 		}
 
@@ -219,13 +209,10 @@ class Template implements \ArrayAccess
 		unset($this->blocks[$offset]);
 	}
 
-
 	public function gComponent($component, array $variables = array())
 	{
-		// Generate the full path to the component file
 		$componentPath = $this->environment->getTemplateDir() . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . $component . '.nu.php';
 
-		// Check if the component file exists
 		if (!file_exists($componentPath)) {
 			throw new \InvalidArgumentException(sprintf("Component file %s could not be found", $componentPath));
 		}
@@ -235,12 +222,11 @@ class Template implements \ArrayAccess
 		require($componentPath);
 		return ob_get_clean();
 	}
+
 	public function ComponentView($component, array $variables = array())
 	{
-		// Generate the full path to the component file
 		$componentPath = 'views' . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . $component . '.nu.php';
 
-		// Check if the component file exists
 		if (!file_exists($componentPath)) {
 			throw new \InvalidArgumentException(sprintf("Component file %s could not be found", $componentPath));
 		}
@@ -253,29 +239,24 @@ class Template implements \ArrayAccess
 
 	protected function Component($component, array $variables = array())
 	{
-		// Generate the full path to the component file
 		$componentPath = $this->findComponent($component);
 
-		// Check if the component file exists
 		if ($componentPath !== null) {
-			extract($variables, EXTR_SKIP); // Extract variables for use in the component file
-			$content = $this->replaceBladeSyntax(file_get_contents($componentPath), $variables); // Get file content and apply Blade syntax
+			extract($variables, EXTR_SKIP);
+			$content = $this->bladeSyntax->replaceBladeSyntax(file_get_contents($componentPath), $variables);
 			ob_start();
-			eval('?>' . $content); // Evaluate the PHP content
+			eval('?>' . $content);
 			return ob_get_clean();
 		} else {
 			throw new \InvalidArgumentException(sprintf("Component file %s could not be found", $component));
 		}
 	}
 
-
 	protected function findComponent($component)
 	{
 		$templateDir = $this->environment->getTemplateDir();
-		// Define the base directory for components relative to the template directory
 		$baseDir = $templateDir . '/../resource/components';
 
-		// Check if the component exists in a subfolder
 		$componentPath = $baseDir . DIRECTORY_SEPARATOR . str_replace('-', DIRECTORY_SEPARATOR, $component) . '.nu.php';
 
 		if (file_exists($componentPath)) {
@@ -283,42 +264,5 @@ class Template implements \ArrayAccess
 		} else {
 			return null;
 		}
-	}
-
-	protected function replaceBladeSyntax($content, $variables)
-	{
-		// Patterns to match Blade-like syntax {{ $variable }} and {{ variable }}
-		$patterns = [
-			'/{{\s*\$(.*?)\s*}}/', // with $
-			'/{{\s*(.*?)\s*}}/'    // without $
-		];
-
-		// Callback function to replace matched patterns with PHP code
-		foreach ($patterns as $pattern) {
-			$content = preg_replace_callback($pattern, function ($matches) use ($variables) {
-				$keys = explode('.', $matches[1]);
-				$value = $this->getValueFromArray($variables, $keys);
-
-				if ($value !== null) {
-					return '<?php echo htmlspecialchars(' . var_export($value, true) . ', ENT_QUOTES, "UTF-8"); ?>';
-				} else {
-					return $matches[0]; // Leave unchanged if variable not found
-				}
-			}, $content);
-		}
-
-		return $content;
-	}
-
-	protected function getValueFromArray($array, $keys)
-	{
-		foreach ($keys as $key) {
-			if (is_array($array) && array_key_exists($key, $array)) {
-				$array = $array[$key];
-			} else {
-				return null;
-			}
-		}
-		return $array;
 	}
 }
