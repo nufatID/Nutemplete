@@ -95,7 +95,8 @@ class Template implements \ArrayAccess
 		$this->blocks = $blocks;
 	}
 
-	protected function renderComponents($content, $variables)
+
+	public function renderComponents($content, $variables)
 	{
 		$pattern = '/<nu-([\w-]+)([^>]*)>(.*?)<\/nu-\1>/s';
 
@@ -123,7 +124,12 @@ class Template implements \ArrayAccess
 
 			if ($componentPath !== null) {
 				$mergedVariables = array_merge($variables, $data, ['slot' => $slotContent]);
-				return $this->Component($component, $mergedVariables);
+
+				// Render the component
+				$renderedComponent = $this->Component($component, $mergedVariables);
+
+				// Recursively render components inside the rendered component
+				return $this->renderComponents($renderedComponent, $variables);
 			} else {
 				throw new \InvalidArgumentException("Component file could not be found.");
 			}
@@ -131,7 +137,6 @@ class Template implements \ArrayAccess
 
 		return $content;
 	}
-
 	public function render(array $variables = array())
 	{
 		if ($this->templatePath !== null) {
@@ -244,6 +249,7 @@ class Template implements \ArrayAccess
 		if ($componentPath !== null) {
 			extract($variables, EXTR_SKIP);
 			$content = $this->bladeSyntax->replaceBladeSyntax(file_get_contents($componentPath), $variables);
+
 			ob_start();
 			eval('?>' . $content);
 			return ob_get_clean();

@@ -10,11 +10,39 @@ class BladeSyntax
     {
         $this->environment = $environment;
     }
+    protected function replaceLoopSyntax($content)
+    {
+        $patterns = [
+            '/@for\s*\((.*?)\)\s*({{.*?}})/s',
+            '/@foreach\s*\((.*?)\)\s*({{.*?}})/s',
+            '/@forelse\s*\((.*?)\)\s*({{.*?}})\s*@empty\s*({{.*?}})\s*?@endforelse/s',
+            '/@while\s*\((.*?)\)\s*({{.*?}})/s',
+        ];
 
+        $replacements = [
+            '<?php for $1: ?>$2<?php endfor; ?>',
+            '<?php foreach $1: ?>$2<?php endforeach; ?>',
+            '<?php if(empty($1)): ?>$3<?php else: ?><?php foreach $1: ?>$2<?php endforeach; ?><?php endif; ?>',
+            '<?php while $1: ?>$2<?php endwhile; ?>',
+        ];
+
+        return preg_replace($patterns, $replacements, $content);
+    }
+    public function replacePhpSyntax($content)
+    {
+
+        $content = preg_replace('/@islogin/', '<?php if (isLogin()) { ?>', $content);
+        $content = preg_replace('/@else/', '<?php } else { ?>', $content);
+        $content = preg_replace('/@end/', '<?php } ?>', $content);
+
+        return $content;
+    }
     public function replaceBladeSyntax($content, $variables)
     {
         $content = $this->replaceExtendSyntax($content);
         $content = $this->replaceSectionSyntax($content);
+        $content = $this->replaceLoopSyntax($content);
+        $content = $this->replacePhpSyntax($content);
 
         $patterns = [
             '/{{\s*\$(.*?)\s*}}/',
