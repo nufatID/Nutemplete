@@ -271,4 +271,11 @@ class Template implements \ArrayAccess
 			return null;
 		}
 	}
+	public function Qrcode($text)
+	{
+		$qrcode = new NuQrcode();
+		ob_start();
+		$qrcode->qrcode($text);
+		return ob_get_clean();
+	}
 }
