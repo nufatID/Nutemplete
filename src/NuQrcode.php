@@ -6,6 +6,8 @@ class NuQrcode
 {
     public function qrcode($text = "https://bungtemin.net")
     {
+        require_once __DIR__ . '/phpqrcode/qrlib.php';
+
         $size = 12; // Ukuran gambar QR code
         $errorCorrectionLevel = "L"; // Level koreksi kesalahan (L, M, Q, H)
         $margin = 1; // Margin di sekeliling QR code
@@ -14,7 +16,7 @@ class NuQrcode
         // Menggunakan nilai default jika $text kosong
         $text = empty($text) ? "https://bungtemin.net" : $text;
 
-        QRcode::png(
+        \QRcode::png(
             $text,
             false,
             $errorCorrectionLevel,
