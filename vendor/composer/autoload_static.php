@@ -6,6 +6,10 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit56977d2e41f25d3719ebf45f64ce3786
 {
+    public static $files = array (
+        '5199e152160bb9bda8b6b3584d59186f' => __DIR__ . '/../..' . '/src/phpqrcode/qrlib.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'N' => 
         array (

@@ -1,31 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nufat\Nutemplete;
 
 class NuQrcode
 {
-    public function qrcode($text = "https://bungtemin.net")
+    public function qrcode(string $text = "https://nufat.id"): void
     {
-        require_once __DIR__ . '/phpqrcode/qrlib.php';
+        if (!class_exists('QRcode')) {
+            $qrLib = __DIR__ . '/phpqrcode/qrlib.php';
+            if (file_exists($qrLib)) {
+                require_once $qrLib;
+            }
+        }
 
-        $size = 12; // Ukuran gambar QR code
-        $errorCorrectionLevel = "L"; // Level koreksi kesalahan (L, M, Q, H)
-        $margin = 1; // Margin di sekeliling QR code
-        $moduleSize = 1; // Ukuran modul QR code
+        $size = 12;
+        $errorCorrectionLevel = "L";
+        $margin = 1;
+        $moduleSize = 1;
 
-        // Menggunakan nilai default jika $text kosong
-        $text = empty($text) ? "https://bungtemin.net" : $text;
+        $text = empty($text) ? "https://nufat.id" : $text;
 
-        \QRcode::png(
-            $text,
-            false,
-            $errorCorrectionLevel,
-            $size,
-            $margin,
-            false,
-            0xffffff,
-            0x000000,
-            $moduleSize
-        );
+        if (class_exists('QRcode')) {
+            \QRcode::png(
+                $text,
+                false,
+                $errorCorrectionLevel,
+                $size,
+                $margin,
+                false,
+                0xffffff,
+                0x000000,
+                $moduleSize
+            );
+        }
     }
 }

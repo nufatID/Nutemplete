@@ -1,110 +1,86 @@
 <?php
 
-namespace Nufat\Nutemplete;
+declare(strict_types=1);
 
+namespace Nufat\Nutemplete;
 
 class Render
 {
-	private $templateDir;
-	private $extension;
-	private $variables;
+    private string $templateDir;
+    private string $extension;
+    private array $variables = [];
+    public ?Template $layout = null;
 
-	/**
-	 * Constructor
-	 * @param string $templateDir 
-	 */
-	public function __construct($templateDir, $extension = '')
-	{
-		$this->templateDir = $templateDir;
-		$this->extension = $extension;
-		$this->layout = null;
-		$this->variables = array();
-	}
+    /**
+     * Constructor
+     */
+    public function __construct(string $templateDir, string $extension = '')
+    {
+        $this->templateDir = rtrim($templateDir, '/\\');
+        $this->extension = $extension;
+    }
 
-	/**
-	 * Render a template.
-	 * @param string $template
-	 * @return string
-	 * @throws \InvalidArgumentException 
-	 */
-	public function render($path, array $variables = array())
-	{
-		$template = Template::withEnvironment($this, $path);
-		return $template->render($variables);
-	}
+    /**
+     * Render a template file
+     */
+    public function render(string $path, array $variables = []): string
+    {
+        $template = Template::withEnvironment($this, $path);
+        return $template->render(array_merge($this->variables, $variables));
+    }
 
-	/**
-	 * Creates an empty template in this environment
-	 */
-	public function template()
-	{
-		return Template::withEnvironment($this, null);
-	}
+    /**
+     * Creates an empty template in this environment
+     */
+    public function template(): Template
+    {
+        return Template::withEnvironment($this, null);
+    }
 
-	/**
-	 * Gets the path of the template in this environment
-	 * @param unknown $template
-	 * @return string
-	 */
-	public function getTemplatePath($template)
-	{
-		return $this->getTemplateDir() . DIRECTORY_SEPARATOR . $template . $this->getExtension();
-	}
+    /**
+     * Gets the full path of the template
+     */
+    public function getTemplatePath(string $template): string
+    {
+        $path = $template;
+        if (!empty($this->extension) && !str_ends_with($path, $this->extension)) {
+            $path .= $this->extension;
+        }
+        return $this->getTemplateDir() . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
+    }
 
-	/**
-	 * Magic isset
-	 * @param string $id
-	 * @return boolean 
-	 */
-	public function __isset($id)
-	{
-		return isset($this->variables[$id]);
-	}
+    public function __isset(string $id): bool
+    {
+        return isset($this->variables[$id]);
+    }
 
-	/**
-	 * Magic getter
-	 * @param string $id
-	 * @return string
-	 */
-	public function __get($id)
-	{
-		return $this->variables[$id];
-	}
+    public function __get(string $id): mixed
+    {
+        return $this->variables[$id] ?? null;
+    }
 
-	/**
-	 * Magic setter
-	 * @param string $id
-	 * @param mixed $value 
-	 */
-	public function __set($id, $value)
-	{
-		$this->variables[$id] = $value;
-	}
+    public function __set(string $id, mixed $value): void
+    {
+        $this->variables[$id] = $value;
+    }
 
-	/**
-	 * Get the template directory
-	 * @return string 
-	 */
-	public function getTemplateDir()
-	{
-		return $this->templateDir;
-	}
+    public function getTemplateDir(): string
+    {
+        return $this->templateDir;
+    }
 
-	/**
-	 * Get the extension
-	 * @return string 
-	 */
-	public function getExtension()
-	{
-		return $this->extension;
-	}
+    public function setTemplateDir(string $templateDir): void
+    {
+        $this->templateDir = rtrim($templateDir, '/\\');
+    }
 
-	/**
-	 * Set the extension
-	 * @param string $extension 
-	 */
-	public function setExtension($extension)
-	{
-		$this->extension = $extension;
-	}
+    public function getExtension(): string
+    {
+        return $this->extension;
+    }
+
+    public function setExtension(string $extension): void
+    {
+        $this->extension = $extension;
+    }
 }

@@ -1,132 +1,85 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nufat\Nutemplete;
 
 /**
  * Block class
  * 
- * The Block class represents a block section in the template. 
+ * Represents a section block within Nutemplete.
  */
 class Block
 {
+    protected ?string $name;
+    protected string $content;
+    protected bool $escaped;
 
-	protected $name;
-	protected $content;
-	protected $escaped;
+    public function __construct(?string $name = null)
+    {
+        $this->name = $name;
+        $this->content = "";
+        $this->escaped = false;
+    }
 
-	public function __construct($name = null)
-	{
-		$this->name = $name;
-		$this->content = "";
-		$this->escaped = false;
-	}
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
 
-	/**
-	 * Get the name of this block
-	 * @return string 
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
+    public function setName(?string $name): void
+    {
+        $this->name = $name;
+    }
 
-	/**
-	 * Set the name of this block
-	 * @param string $name 
-	 */
-	public function setName($name)
-	{
-		$this->name = $name;
-	}
+    public function getContent(): string
+    {
+        return $this->content;
+    }
 
-	/**
-	 * Get the content
-	 * @return string 
-	 */
-	public function getContent()
-	{
-		return $this->content;
-	}
+    public function setContent(string $content): void
+    {
+        $this->content = $content;
+    }
 
-	/**
-	 * Set the content
-	 * @param string $content 
-	 */
-	public function setContent($content)
-	{
-		$this->content = $content;
-	}
+    public function append(string $content): void
+    {
+        $this->content .= $content;
+    }
 
-	/**
-	 * Append to the content
-	 * @param string $content 
-	 */
-	public function append($content)
-	{
-		$this->content .= $content;
-	}
+    public function prepend(string $content): void
+    {
+        $this->content = $content . $this->content;
+    }
 
-	/**
-	 * Prepend to the content
-	 * @param string $content 
-	 */
-	public function prepend($content)
-	{
-		$this->content = $content . $this->content;
-	}
+    public function escape(): string
+    {
+        if (!$this->escaped) {
+            return htmlspecialchars($this->content, ENT_QUOTES, "UTF-8");
+        }
+        return $this->content;
+    }
 
-	/**
-	 * Escapes the content and returns it.
-	 * If it's already escaped, it will simple return the content.
-	 * 
-	 * @return string
-	 */
-	public function escape()
-	{
-		if (!$this->escaped)
-			return htmlspecialchars($this->content, ENT_QUOTES, "UTF-8");
-		else
-			return $this->content;
-	}
+    public function e(): string
+    {
+        return $this->escape();
+    }
 
-	/**
-	 * Shorthand function for escape
-	 * @return string 
-	 */
-	public function e()
-	{
-		return $this->escape();
-	}
+    public function call(callable|string $function): mixed
+    {
+        if ($function instanceof \Closure || (is_string($function) && function_exists($function))) {
+            return $function($this->content);
+        }
+        throw new \InvalidArgumentException("The function provided cannot be called on Block content.");
+    }
 
-	/**
-	 * Calls a function on the content.
-	 * @param string|Closure $function
-	 * @return mixed
-	 * @throws \InvalidArgumentException 
-	 */
-	public function call($function)
-	{
-		if ($function instanceof \Closure || is_string($function) && function_exists($function))
-			return $function($this->content);
-		else
-			throw new \InvalidArgumentException(sprintf("The function %s cannot be called", $function));
-	}
+    public function __toString(): string
+    {
+        return $this->content;
+    }
 
-	/**
-	 * Returns the content.
-	 * @return string 
-	 */
-	public function __toString()
-	{
-		return $this->content;
-	}
-
-	/**
-	 * Sets escaped
-	 * @param boolean $escaped 
-	 */
-	function setEscaped($escaped)
-	{
-		$this->escaped = $escaped;
-	}
+    public function setEscaped(bool $escaped): void
+    {
+        $this->escaped = $escaped;
+    }
 }
