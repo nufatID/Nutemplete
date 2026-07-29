@@ -1,14 +1,14 @@
-# Nutemplete 🍃
+# Nutemplete Engine v3.0.4 🍃
 
 [![PHP Version](https://img.shields.io/badge/PHP-%5E8.1%20%7C%20%5E8.2%20%7C%20%5E8.3-blue.svg)](https://php.net)
-[![Version](https://img.shields.io/badge/Nutemplete-v3.0.1-success.svg)](LICENSE)
+[![Nutemplete Version](https://img.shields.io/badge/Nutemplete-v3.0.4-success.svg)](https://github.com/nufatID/Nutemplete)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**Nutemplete** adalah Template Engine PHP modern, super ringan, dan fleksibel buatan Nufat.id. Mengombinasikan kemudahan sintaks PHP murni, direktif **Blade-style**, serta komponen HTML kustom (`<nu-component>`).
+**Nutemplete** adalah Template Engine PHP yang sangat cepat, ringan, dan fleksibel. Menggabungkan sintaks **Blade Directives (Laravel)** dengan **HTML Tag Components ala React JS** (`<nu-layout-dodol>` & self-closing `<nu-component />`).
 
 ---
 
-## 🌟 Fitur Utama (v3.0.0)
+## 🌟 Fitur Utama (v3.0.4)
 
 - ⚡ **Super Fast & Lightweight:** Performa tinggi tanpa overhead.
 - ⚔️ **Blade Directives:** Mendukung direktif `@extends`, `@section`, `@yield`, `@if`, `@foreach`, `@unless`, `@auth`, `@guest`, `@json`, `@asset`, dan `@flash('success')`.

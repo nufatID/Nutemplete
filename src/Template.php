@@ -113,38 +113,53 @@ class Template implements \ArrayAccess
 
     public function renderComponents(string $content, array $variables = []): string
     {
-        $pattern = '/<nu-([\w-]+)([^>]*)>(.*?)<\/nu-\1>/s';
-
-        return preg_replace_callback($pattern, function ($matches) use ($variables) {
+        // 1. Paired Tags <nu-foo ...>...</nu-foo>
+        $patternPaired = '/<nu-([\w-]+)([^>]*)>(.*?)<\/nu-\1>/s';
+        $content = preg_replace_callback($patternPaired, function ($matches) use ($variables) {
             $component = $matches[1];
             $attributes = $matches[2];
             $slotContent = $matches[3];
-
-            preg_match_all('/([\w-]+)\s*=\s*([\'"])(.*?)\2/', $attributes, $attributeMatches, PREG_SET_ORDER);
-            $data = [];
-            foreach ($attributeMatches as $attr) {
-                $attrName = $attr[1];
-                $attrValue = $attr[3];
-                if ($attrName === 'data') {
-                    $decoded = json_decode($attrValue, true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                        $data = array_merge($data, $decoded);
-                    }
-                } else {
-                    $data[$attrName] = $attrValue;
-                }
-            }
-
-            $componentPath = $this->findComponent($component);
-
-            if ($componentPath !== null) {
-                $mergedVariables = array_merge($variables, $data, ['slot' => $slotContent]);
-                $renderedComponent = $this->renderComponentFile($componentPath, $mergedVariables);
-                return $this->renderComponents($renderedComponent, $variables);
-            }
-
-            return $matches[0];
+            return $this->processComponentMatch($component, $attributes, $slotContent, $variables, $matches[0]);
         }, $content) ?? $content;
+
+        // 2. Self-Closing Tags <nu-foo ... />
+        $patternSelfClosing = '/<nu-([\w-]+)([^>]*?)\/>/s';
+        $content = preg_replace_callback($patternSelfClosing, function ($matches) use ($variables) {
+            $component = $matches[1];
+            $attributes = $matches[2];
+            $slotContent = '';
+            return $this->processComponentMatch($component, $attributes, $slotContent, $variables, $matches[0]);
+        }, $content) ?? $content;
+
+        return $content;
+    }
+
+    protected function processComponentMatch(string $component, string $attributes, string $slotContent, array $variables, string $originalMatch): string
+    {
+        preg_match_all('/([\w-]+)\s*=\s*([\'"])(.*?)\2/', $attributes, $attributeMatches, PREG_SET_ORDER);
+        $data = [];
+        foreach ($attributeMatches as $attr) {
+            $attrName = $attr[1];
+            $attrValue = $attr[3];
+            if ($attrName === 'data') {
+                $decoded = json_decode($attrValue, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $data = array_merge($data, $decoded);
+                }
+            } else {
+                $data[$attrName] = $attrValue;
+            }
+        }
+
+        $componentPath = $this->findComponent($component);
+
+        if ($componentPath !== null) {
+            $mergedVariables = array_merge($variables, $data, ['slot' => $slotContent]);
+            $renderedComponent = $this->renderComponentFile($componentPath, $mergedVariables);
+            return $this->renderComponents($renderedComponent, $variables);
+        }
+
+        return $originalMatch;
     }
 
     public function render(array $variables = []): string
