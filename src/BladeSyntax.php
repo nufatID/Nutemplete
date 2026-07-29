@@ -112,6 +112,11 @@ class BladeSyntax
         $content = preg_replace('/@json\((.*?)\)/', '<?php echo json_encode($1, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>', $content);
         $content = preg_replace('/@asset\((.*?)\)/', '<?php echo (function_exists("getBaseUrl") ? getBaseUrl() : "") . $1 . "?v=" . time(); ?>', $content);
 
+        $content = preg_replace_callback('/@flash\(["\'](.+?)["\']\)/', function ($matches) {
+            $key = $matches[1];
+            return '<?php if (function_exists("flash") && ($msg = flash("' . $key . '"))): ?><div class="alert alert-' . ($key === "error" ? "danger" : $key) . '">' . htmlspecialchars((string)$msg, ENT_QUOTES, "UTF-8") . '</div><?php endif; ?>';
+        }, $content);
+
         return $content;
     }
 }

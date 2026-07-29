@@ -11,7 +11,7 @@
 ## 🌟 Fitur Utama (v3.0.0)
 
 - ⚡ **Super Fast & Lightweight:** Performa tinggi tanpa overhead.
-- ⚔️ **Blade Directives:** Mendukung direktif `@extends`, `@section`, `@yield`, `@if`, `@foreach`, `@unless`, `@auth`, `@guest`, `@json`, dan `@asset`.
+- ⚔️ **Blade Directives:** Mendukung direktif `@extends`, `@section`, `@yield`, `@if`, `@foreach`, `@unless`, `@auth`, `@guest`, `@json`, `@asset`, dan `@flash('success')`.
 - 🧩 **HTML Components (`<nu-*>`):** Sintaks tag HTML komponen kustom seperti `<nu-card title="Halo">Konten</nu-card>`.
 - 🖼️ **Native Layout Blocks:** Dukungan inheritance layout berbasis `$this->extend()` dan `$this->block()`.
 - 📱 **QR Code Helper:** Terintegrasi dengan QR Code generator bawaan.
