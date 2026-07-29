@@ -23,10 +23,22 @@ class BladeSyntax
         $content = $this->replaceSectionSyntax($content);
 
         // 3. Unescaped Output {!! ... !!}
-        $content = preg_replace('/{!!\s*(.*?)\s*!!}/s', '<?php echo $1; ?>', $content);
+        $content = preg_replace_callback('/{!!\s*(.*?)\s*!!}/s', function ($matches) {
+            $expr = trim($matches[1]);
+            if (preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $expr)) {
+                $expr = '$' . $expr;
+            }
+            return '<?php echo ' . $expr . '; ?>';
+        }, $content);
 
         // 4. Escaped Output {{ ... }}
-        $content = preg_replace('/{{\s*(.*?)\s*}}/s', '<?php echo htmlspecialchars((string)($1 ?? ""), ENT_QUOTES, "UTF-8"); ?>', $content);
+        $content = preg_replace_callback('/{{\s*(.*?)\s*}}/s', function ($matches) {
+            $expr = trim($matches[1]);
+            if (preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $expr)) {
+                $expr = '$' . $expr;
+            }
+            return '<?php echo htmlspecialchars((string)(' . $expr . ' ?? ""), ENT_QUOTES, "UTF-8"); ?>';
+        }, $content);
 
         // 5. Conditionals & Loops
         $content = $this->replaceConditionals($content);
