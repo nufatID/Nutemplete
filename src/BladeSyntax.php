@@ -103,6 +103,15 @@ class BladeSyntax
         $content = preg_replace('/@islogin/', '<?php if (function_exists("isLogin") && isLogin()): ?>', $content);
         $content = preg_replace('/@endislogin/', '<?php endif; ?>', $content);
 
+        $content = preg_replace('/@auth/', '<?php if ((isset($_SESSION["user"]) || isset($_SESSION["user_id"])) || (function_exists("isLogin") && isLogin())): ?>', $content);
+        $content = preg_replace('/@endauth/', '<?php endif; ?>', $content);
+
+        $content = preg_replace('/@guest/', '<?php if (!((isset($_SESSION["user"]) || isset($_SESSION["user_id"])) || (function_exists("isLogin") && isLogin()))): ?>', $content);
+        $content = preg_replace('/@endguest/', '<?php endif; ?>', $content);
+
+        $content = preg_replace('/@json\((.*?)\)/', '<?php echo json_encode($1, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>', $content);
+        $content = preg_replace('/@asset\((.*?)\)/', '<?php echo (function_exists("getBaseUrl") ? getBaseUrl() : "") . $1 . "?v=" . time(); ?>', $content);
+
         return $content;
     }
 }

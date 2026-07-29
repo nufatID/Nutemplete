@@ -1,16 +1,17 @@
 # Nutemplete 🍃
 
 [![PHP Version](https://img.shields.io/badge/PHP-%5E8.1%20%7C%20%5E8.2%20%7C%20%5E8.3-blue.svg)](https://php.net)
+[![Version](https://img.shields.io/badge/Nutemplete-v3.0.0-success.svg)](LICENSE)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 **Nutemplete** adalah Template Engine PHP modern, super ringan, dan fleksibel buatan Nufat.id. Mengombinasikan kemudahan sintaks PHP murni, direktif **Blade-style**, serta komponen HTML kustom (`<nu-component>`).
 
 ---
 
-## 🌟 Fitur Utama
+## 🌟 Fitur Utama (v3.0.0)
 
 - ⚡ **Super Fast & Lightweight:** Performa tinggi tanpa overhead.
-- ⚔️ **Blade Directives:** Mendukung direktif `@extends`, `@section`, `@yield`, `@if`, `@foreach`, `@unless`, dan `{{ $variable }}`.
+- ⚔️ **Blade Directives:** Mendukung direktif `@extends`, `@section`, `@yield`, `@if`, `@foreach`, `@unless`, `@auth`, `@guest`, `@json`, dan `@asset`.
 - 🧩 **HTML Components (`<nu-*>`):** Sintaks tag HTML komponen kustom seperti `<nu-card title="Halo">Konten</nu-card>`.
 - 🖼️ **Native Layout Blocks:** Dukungan inheritance layout berbasis `$this->extend()` dan `$this->block()`.
 - 📱 **QR Code Helper:** Terintegrasi dengan QR Code generator bawaan.
