@@ -1,7 +1,7 @@
 # Nutemplete 🍃
 
 [![PHP Version](https://img.shields.io/badge/PHP-%5E8.1%20%7C%20%5E8.2%20%7C%20%5E8.3-blue.svg)](https://php.net)
-[![Version](https://img.shields.io/badge/Nutemplete-v3.0.0-success.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/Nutemplete-v3.0.1-success.svg)](LICENSE)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 **Nutemplete** adalah Template Engine PHP modern, super ringan, dan fleksibel buatan Nufat.id. Mengombinasikan kemudahan sintaks PHP murni, direktif **Blade-style**, serta komponen HTML kustom (`<nu-component>`).
