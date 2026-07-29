@@ -101,7 +101,7 @@ class BladeSyntax
     protected function replaceCustomDirectives(string $content): string
     {
         $content = preg_replace('/@islogin/', '<?php if (function_exists("isLogin") && isLogin()): ?>', $content);
-        $content = preg_replace('/@endislogin/', '<?php endif; ?>', $content);
+        $content = preg_replace('/@(endislogin|end)\b/', '<?php endif; ?>', $content);
 
         $content = preg_replace('/@auth/', '<?php if ((isset($_SESSION["user"]) || isset($_SESSION["user_id"])) || (function_exists("isLogin") && isLogin())): ?>', $content);
         $content = preg_replace('/@endauth/', '<?php endif; ?>', $content);
